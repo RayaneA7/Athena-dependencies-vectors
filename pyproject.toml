@@ -1,0 +1,27 @@
+[tool.poetry]
+name = "athena"
+version = "0.1.0"
+description = ""
+authors = ["Smail KOURTA <sk10691@nyu.edu>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.10"
+numpy = "^1.24.3"
+
+
+[tool.poetry.group.dev.dependencies]
+pytest-cov = "^4.1.0"
+coverage = "^7.2.7"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.coverage.run]
+branch = true
+source = ["athena"]
+
+[tool.coverage.report]
+# omit main.py from coverage report
+omit = ["athena/main.py"]
