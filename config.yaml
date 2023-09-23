@@ -1,0 +1,13 @@
+# Check the AthenaConfig class in athena/utils/config.py for more information about the config file
+
+athena:
+  workspace: "workspace"
+
+tiramisu: 
+  is_new_tiramisu: False
+
+env_vars:
+  CXX: "g++"
+  CC: "gcc"
+  TIRAMISU_ROOT: "/home/rayane-a7/tiramisu_installation/dev/tiramisu"
+  LD_LIBRARY_PATH: "${TIRAMISU_ROOT}/3rdParty/Halide/build/src:${TIRAMISU_ROOT}/3rdParty/llvm/build/lib:${TIRAMISU_ROOT}/build:${TIRAMISU_ROOT}/3rdParty/isl/build/lib"

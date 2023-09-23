@@ -1,6 +1,5 @@
 _tmp
 **/__pycache__
-config.yaml
 workspace
 .vscode/c_cpp_properties.json
 **/*.ipynb
@@ -8,4 +7,3 @@ workspace
 htmlcov
 **/.pytest_cache
 dist
-main.py
