@@ -136,11 +136,11 @@ def get_schedule_str(program_json, sched_json):
 
                 # Change loop nest to reflect interchange
 
-                interchange = transf_loop_nest[transformation[1]]
-                transf_loop_nest[transformation[1]] = transf_loop_nest[
-                    transformation[2]
-                ]
-                transf_loop_nest[transformation[2]] = interchange
+                # interchange = transf_loop_nest[transformation[1]]
+                # transf_loop_nest[transformation[1]] = transf_loop_nest[
+                #     transformation[2]
+                # ]
+                # transf_loop_nest[transformation[2]] = interchange
 
             elif transformation[0] == 2:
                 sched_str += "R(L" + str(transformation[3]) + ")"
@@ -555,7 +555,8 @@ def get_schedule_str(program_json, sched_json):
 
 
 main_dataset_path1 = "function_gramschmidt_explored_schedules.json"
-main_dataset_path = "function606428_explored_schedules.json"
+main_dataset_path2 = "function606428_explored_schedules.json"
+main_dataset_path = "function800111_explored_schedules.json"
 
 
 def read_json_file(file_path):
@@ -629,11 +630,14 @@ if __name__ == "__main__":
     # print(schedule.apply_schedule(3))
 
     # matmul = TiramisuProgram.from_file(
-    #     "./function_gramschmidt_generator.cpp", load_annotations=True, load_tree=True
+    # "./function_gramschmidt_generator.cpp", load_annotations=True, load_tree=True
     # )
 
+    # matmul = TiramisuProgram.from_file(
+    #     "./function_606428_generator.cpp", load_annotations=True, load_tree=True
+    # )
     matmul = TiramisuProgram.from_file(
-        "./function_606428_generator.cpp", load_annotations=True, load_tree=True
+        "./function_800111_generator.cpp", load_annotations=True, load_tree=True
     )
     schedule = Schedule(matmul)
     ################### this is a modification
@@ -647,13 +651,14 @@ if __name__ == "__main__":
         sched_str = get_schedule_str(main_dataset["program_annotation"], item)
         # print(matmul.set_name(matmul.name + str(index)))
         # if sched_str == None : pass
-        # sched_str = "S(L0,L1,0,1,comps=['comp00'])|I(L0,L1,comps=['comp00'])|P(L1,comps=['comp00'])|T2(L0,L1,128,32,comps=['comp00'])|U(L4,4,comps=['comp00'])"
+        # sched_str = "S(L0,L1,0,1,comps=['comp00'])"
+        sched_str = "F(2,comps=['comp00','comp01'])|S(L1,L2,0,1,comps=['comp00'])|S(L1,L2,0,1,comps=['comp01'])"
+        # sched_str = "I(L0,L1,comps=['comp00'])|P(L0,comps=['comp00'])|I(L0,L1,comps=['comp01'])|P(L0,comps=['comp01'])"
         new_schd = Schedule.from_sched_str(sched_str, matmul)
         # print(new_schd.set_name(TiramisuProgram.__name__ + str(index)))
 
         # CompilingService.get_schedule_code(matmul,new_schd)
         # print(new_schd)
-
         print(new_schd.apply_schedule())
         # matmul.set_name(matmul_name)
 
