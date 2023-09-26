@@ -75,7 +75,7 @@ class Schedule:
         Removes the last optimization from the schedule and returns it.
         """
         return self.optims_list.pop()
-    
+
     def apply_schedule(
         self, nb_exec_tiems=1, max_mins_per_schedule: float | None = None
     ) -> List[float]:
@@ -90,6 +90,7 @@ class Schedule:
         -------
         The execution time of the Tiramisu program after applying the schedule.
         """
+
         if self.tiramisu_program is None:
             raise Exception("No Tiramisu program to apply the schedule to")
 
@@ -98,8 +99,11 @@ class Schedule:
 
         if self.legality == False:
             raise Exception("Schedule is not legal")
-        
-        code = CompilingService.get_schedule_code(self.tiramisu_program,self.optims_list)
+
+        code = CompilingService.get_schedule_code(
+            self.tiramisu_program, self.optims_list
+        )
+
         print(code)
 
         return CompilingService.get_cpu_exec_times(
@@ -152,7 +156,7 @@ class Schedule:
                     schedule.add_optimizations(
                         [
                             tiramisu_actions.Parallelization(
-                                [(comps[0], loop_level)],comps
+                                [(comps[0], loop_level)], comps
                             )
                         ]
                     )
@@ -172,7 +176,8 @@ class Schedule:
                                 [
                                     (comps[0], loop_level),
                                     factor,
-                                ],comps
+                                ],
+                                comps,
                             )
                         ]
                     )
@@ -190,7 +195,8 @@ class Schedule:
                                 [
                                     (comps[0], first_loop_level),
                                     (comps[0], second_loop_level),
-                                ],comps
+                                ],
+                                comps,
                             )
                         ]
                     )
@@ -202,11 +208,7 @@ class Schedule:
                     comps = match.group(2).split(",")
                     comps = [comp.strip("' ") for comp in comps]
                     schedule.add_optimizations(
-                        [
-                            tiramisu_actions.Reversal(
-                                [(comps[0], loop_level)],comps
-                            )
-                        ]
+                        [tiramisu_actions.Reversal([(comps[0], loop_level)], comps)]
                     )
             elif optimization_str[:2] == "T2":
                 regex = r"T2\(L(\d),L(\d),(\d+),(\d+),comps=\[([\w', ]*)\]\)"
@@ -226,7 +228,8 @@ class Schedule:
                                     (comps[0], inner_loop_level),
                                     outer_loop_factor,
                                     inner_loop_factor,
-                                ],comps
+                                ],
+                                comps,
                             )
                         ]
                     )
@@ -254,7 +257,8 @@ class Schedule:
                                     outer_loop_factor,
                                     middle_loop_factor,
                                     inner_loop_factor,
-                                ],comps
+                                ],
+                                comps,
                             )
                         ]
                     )
@@ -276,7 +280,8 @@ class Schedule:
                                     (comps[0], inner_loop_level),
                                     outer_loop_factor,
                                     inner_loop_factor,
-                                ],comps
+                                ],
+                                comps,
                             )
                         ]
                     )

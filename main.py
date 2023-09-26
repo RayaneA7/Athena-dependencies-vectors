@@ -7,7 +7,7 @@ from athena.tiramisu.tiramisu_actions.fusion import Fusion
 from athena.tiramisu import Schedule, TiramisuProgram, tiramisu_actions
 from athena.tiramisu.compiling_service import CompilingService
 
-import json
+import json, os
 
 from athena.utils.config import BaseConfig
 
@@ -568,66 +568,11 @@ def read_json_file(file_path):
 main_dataset = read_json_file(main_dataset_path)
 ####################################
 
-# def function_to_run(dataset_actor: DatasetActor, id: int, progress_actor: "ProgressActor", suffix: str = None):  # type: ignore
-#     while True:
-#         next_program = dataset_actor.get_next_function()
-
-#         legalities, solver_results = generate_legalities_random_schedules(
-#             next_program, id_worker=id, log_file=f"athena_search_{suffix}.log"
-#         )
-
-#         next_program.schedules_legality.update(legalities)
-#         next_program.schedules_solver.update(solver_results)
-
-#         assert next_program.name
-
-#         dataset_actor.update_dataset(
-#             next_program.name,
-#             {
-#                 "schedules_legality": next_program.schedules_legality,
-#                 "schedules_solver": next_program.schedules_solver,
-#             },
-#             suffix=f"{suffix}",
-#         )
-
-#         logging.info(
-#             f"Progress Report: worker {id} generated {len(legalities)} schedules and {len(solver_results)} solver results"
-#         )
-
-
 if __name__ == "__main__":
     BaseConfig.init(logging_level=logging.INFO)
     assert BaseConfig.base_config
 
     suffix = time.time()
-
-    # sched_str = "R(L1,comps=['R_up_init', 'R_up', 'A_out'])|R(L2,comps=['A_out'])"
-
-    # sched_str = "R(L1,comps=['R_up_init'])|R(L1,comps=['R_up'])|R(L2,comps=['A_out'])|R(L1,comps=['A_out'])"
-    # dataset_actor = DatasetActor(BaseConfig.base_config.dataset)
-
-    # next_program = dataset_actor.get_next_function()
-
-    # schedule = Schedule(next_program)
-
-    # print(schedule.apply_schedule(3, 0.000001))
-    # print(schedule.apply_schedule(3))
-
-    # matmul = TiramisuProgram.from_file(
-    #     "./examples/function_matmul_MEDIUM.cpp", load_annotations=True, load_tree=True
-    # )
-
-    # schedule = Schedule(matmul)
-
-    # print(schedule.apply_schedule(3))
-
-    # assert schedule.tree
-
-    # schedule.add_optimizations(
-    #     [tiramisu_actions.Parallelization(params=[("comp02", 0)])]
-    # )
-
-    # print(schedule.apply_schedule(3))
 
     # matmul = TiramisuProgram.from_file(
     # "./function_gramschmidt_generator.cpp", load_annotations=True, load_tree=True
@@ -636,10 +581,18 @@ if __name__ == "__main__":
     # matmul = TiramisuProgram.from_file(
     #     "./function_606428_generator.cpp", load_annotations=True, load_tree=True
     # )
-    matmul = TiramisuProgram.from_file(
-        "./function_800111_generator.cpp", load_annotations=True, load_tree=True
-    )
-    schedule = Schedule(matmul)
+    try:
+        matmul = TiramisuProgram.from_file(
+            "./function_800111_generator.cpp", load_annotations=True, load_tree=True
+        )
+    except:
+        logging.ERROR("program is not loaded")
+
+    try:
+        schedule = Schedule(matmul)
+
+    except:
+        logging.ERROR("Schedule is not read")
     ################### this is a modification
     # print(schedule.apply_schedule(3))
 
@@ -648,19 +601,37 @@ if __name__ == "__main__":
     matmul_name = matmul.name
 
     for index, item in enumerate(main_dataset["schedules_list"]):
-        sched_str = get_schedule_str(main_dataset["program_annotation"], item)
+        try:
+            os.environ["Schedule"] = str(index)
+            sched_str = get_schedule_str(main_dataset["program_annotation"], item)
+
+        except:
+            logging.ERROR("didn't get schedule str")
         # print(matmul.set_name(matmul.name + str(index)))
         # if sched_str == None : pass
         # sched_str = "S(L0,L1,0,1,comps=['comp00'])"
-        sched_str = "F(2,comps=['comp00','comp01'])|S(L1,L2,0,1,comps=['comp00'])|S(L1,L2,0,1,comps=['comp01'])"
+        # sched_str = "F(2,comps=['comp00','comp01'])|S(L1,L2,0,1,comps=['comp00'])|S(L1,L2,0,1,comps=['comp01'])"
         # sched_str = "I(L0,L1,comps=['comp00'])|P(L0,comps=['comp00'])|I(L0,L1,comps=['comp01'])|P(L0,comps=['comp01'])"
-        new_schd = Schedule.from_sched_str(sched_str, matmul)
-        # print(new_schd.set_name(TiramisuProgram.__name__ + str(index)))
+        try:
+            if sched_str is not None:
+                new_schd = Schedule.from_sched_str(sched_str, matmul)
+                schedule.add_optimizations(
+                    [
+                        tiramisu_actions.Skewing([("comp00", 0), ("comp01", 1), 0, 1]),
+                    ]
+                )
 
-        # CompilingService.get_schedule_code(matmul,new_schd)
-        # print(new_schd)
-        print(new_schd.apply_schedule())
-        # matmul.set_name(matmul_name)
+                # print(new_schd.set_name(TiramisuProgram.__name__ + str(index)))
+
+                # CompilingService.get_schedule_code(matmul,new_schd)
+                # print(new_schd)
+                print(schedule.apply_schedule())
+                # print(new_schd.apply_schedule())
+
+        except:
+            logging.ERROR("schedule is not applied ")
+
+            # matmul.set_name(matmul_name)
 
     # schedule.add_optimizations(
     # [

@@ -257,6 +257,7 @@ class CompilingService:
                 "rm {}*".format(output_path),
             ]
         try:
+            print(cpp_code)
             compiler = subprocess.run(
                 ["\n".join(env_vars + shell_script)],
                 input=cpp_code,
@@ -266,12 +267,12 @@ class CompilingService:
                 check=True,
             )
 
+            # print("dononnnnnnnnne")
             if compiler.stdout:
                 return compiler.stdout
             else:
                 print(compiler.stderr)
                 raise Exception("Compiler returned no output")
-
         except subprocess.CalledProcessError as e:
             logging.error(f"Process terminated with error code: {e.returncode}")
             logging.error(f"Error output: {e.stderr}")
@@ -300,7 +301,6 @@ class CompilingService:
         """
         assert schedule.tiramisu_program
         assert schedule.tiramisu_program.comps
-
         if BaseConfig.base_config is None:
             raise Exception("The base config is not loaded yet")
         legality_cpp_code = cls.get_legality_code(schedule)
